@@ -152,7 +152,7 @@ onUnmounted(() => {
 }
 
 .app__panel {
-  height: calc(100vh - 110px);
+  height: 100%;
   min-width: 0;
 }
 

@@ -4,8 +4,11 @@ const BASE_TIME = Date.now() - 3 * 24 * 60 * 60 * 1000;
 const statuses = ['planned', 'active', 'blocked', 'done'];
 
 const createTask = (index) => {
-  const start = BASE_TIME + index * 3 * 60 * 60 * 1000;
-  const duration = (2 + (index % 6)) * 60 * 60 * 1000;
+  const bucketHours = 10 * 24;
+  const hourOffset = (index % bucketHours) * 60 * 60 * 1000;
+  const jitter = (index % 12) * 5 * 60 * 1000;
+  const start = BASE_TIME + hourOffset + jitter;
+  const duration = (4 + (index % 12)) * 60 * 60 * 1000;
   return {
     id: `task-${index}`,
     name: `Task ${index}`,

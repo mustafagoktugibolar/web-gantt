@@ -26,10 +26,20 @@
       <button @click="setPreset(168)">7d</button>
     </div>
   </div>
+  <div class="ruler" @wheel.prevent="onWheel">
+    <div
+      v-for="tick in ticks"
+      :key="tick.label"
+      class="ruler__tick"
+      :style="{ left: tick.left + '%' }"
+    >
+      <span>{{ tick.label }}</span>
+    </div>
+  </div>
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { formatDateInput, parseDateInput } from '../utils/time';
 
 const props = defineProps({
@@ -74,6 +84,28 @@ const setPreset = (hours) => {
   localEnd.value = formatDateInput(end);
   debounceUpdate();
 };
+
+const clampZoom = (value) => Math.min(Math.max(value, 10), 120);
+
+const onWheel = (event) => {
+  const direction = event.deltaY > 0 ? -1 : 1;
+  const step = direction * 5;
+  localZoom.value = clampZoom(localZoom.value + step);
+  debounceUpdate();
+};
+
+const ticks = computed(() => {
+  const count = 6;
+  const rangeMs = props.end - props.start;
+  return Array.from({ length: count }, (_, index) => {
+    const ratio = index / (count - 1);
+    const time = props.start + rangeMs * ratio;
+    return {
+      left: ratio * 100,
+      label: new Date(time).toLocaleDateString()
+    };
+  });
+});
 </script>
 
 <style scoped>
@@ -101,5 +133,38 @@ label {
   flex-direction: column;
   gap: 4px;
   font-weight: 600;
+}
+
+.ruler {
+  position: relative;
+  height: 32px;
+  background: repeating-linear-gradient(
+    to right,
+    #e5e7eb,
+    #e5e7eb 1px,
+    transparent 1px,
+    transparent 40px
+  );
+  border-bottom: 1px solid #e5e7eb;
+  background-color: #fff;
+}
+
+.ruler__tick {
+  position: absolute;
+  top: 4px;
+  transform: translateX(-50%);
+  font-size: 10px;
+  color: #6b7280;
+  white-space: nowrap;
+}
+
+.ruler__tick::before {
+  content: '';
+  position: absolute;
+  top: -4px;
+  left: 50%;
+  width: 1px;
+  height: 10px;
+  background: #9ca3af;
 }
 </style>
