@@ -80,6 +80,21 @@ const createStore = () => {
     }, 1000);
   };
 
+  const computeBarsFor = async (tasks) => {
+    const requestId = ++computeRequestId;
+    const start = performance.now();
+    const result = await engine.computeBars({
+      tasks,
+      rangeStart: timeline.start,
+      rangeEnd: timeline.end,
+      pxPerHour: timeline.pxPerHour
+    });
+    if (requestId !== computeRequestId) return;
+    const end = performance.now();
+    workerMs.value = Math.round(end - start);
+    return result;
+  };
+
   const refreshVisibleTasks = async () => {
     const { startIndex, endIndex } = visibleRange.value;
     const next = [];
@@ -88,24 +103,10 @@ const createStore = () => {
       const task = tasksById.get(id);
       if (task) next.push(task);
     }
+    const nextBars = await computeBarsFor(next);
+    if (!nextBars) return;
     visibleTasks.value = next;
-    await computeBars();
-  };
-
-  const computeBars = async () => {
-    const requestId = ++computeRequestId;
-    const start = performance.now();
-    const currentTasks = visibleTasks.value;
-    const result = await engine.computeBars({
-      tasks: currentTasks,
-      rangeStart: timeline.start,
-      rangeEnd: timeline.end,
-      pxPerHour: timeline.pxPerHour
-    });
-    if (requestId !== computeRequestId) return;
-    const end = performance.now();
-    workerMs.value = Math.round(end - start);
-    bars.value = result;
+    bars.value = nextBars;
   };
 
   const fetchWindow = async ({ anchorIndex, direction }) => {
