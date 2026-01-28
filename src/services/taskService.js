@@ -42,9 +42,7 @@ export const fetchTasks = async ({
     ? Math.max(anchorIndex - limit, 0)
     : anchorIndex;
   const endIndex = Math.min(startIndex + limit, tasks.length);
-  const page = tasks.slice(startIndex, endIndex).filter((task) =>
-    filterByRange(task, rangeStart, rangeEnd)
-  );
+  const page = tasks.slice(startIndex, endIndex);
   return {
     tasks: page,
     nextAnchor: endIndex,

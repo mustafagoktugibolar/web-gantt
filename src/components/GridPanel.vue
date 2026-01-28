@@ -21,7 +21,7 @@
 </template>
 
 <script setup>
-import { onMounted, ref, watch } from 'vue';
+import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
 
 const props = defineProps({
   rows: { type: Array, required: true },
@@ -34,6 +34,7 @@ const props = defineProps({
 
 const emit = defineEmits(['scroll', 'select', 'hover', 'resize']);
 const container = ref(null);
+let resizeObserver;
 
 const handleScroll = () => {
   emit('scroll', container.value.scrollTop);
@@ -41,6 +42,16 @@ const handleScroll = () => {
 
 onMounted(() => {
   emit('resize', container.value.clientHeight);
+  resizeObserver = new ResizeObserver((entries) => {
+    const entry = entries[0];
+    if (!entry) return;
+    emit('resize', entry.contentRect.height);
+  });
+  resizeObserver.observe(container.value);
+});
+
+onBeforeUnmount(() => {
+  resizeObserver?.disconnect();
 });
 
 watch(

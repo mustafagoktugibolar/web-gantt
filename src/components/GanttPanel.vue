@@ -35,7 +35,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 
 const props = defineProps({
   bars: { type: Array, required: true },
@@ -53,6 +53,7 @@ const props = defineProps({
 
 const emit = defineEmits(['scroll', 'select', 'hover', 'resize', 'hscroll']);
 const container = ref(null);
+let resizeObserver;
 
 const timelineWidth = computed(() => {
   const hours = (props.rangeEnd - props.rangeStart) / (1000 * 60 * 60);
@@ -74,6 +75,19 @@ onMounted(() => {
     height: container.value.clientHeight,
     width: container.value.clientWidth
   });
+  resizeObserver = new ResizeObserver((entries) => {
+    const entry = entries[0];
+    if (!entry) return;
+    emit('resize', {
+      height: entry.contentRect.height,
+      width: entry.contentRect.width
+    });
+  });
+  resizeObserver.observe(container.value);
+});
+
+onBeforeUnmount(() => {
+  resizeObserver?.disconnect();
 });
 
 watch(

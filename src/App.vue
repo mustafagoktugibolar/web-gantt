@@ -141,7 +141,7 @@ onUnmounted(() => {
 .app {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  height: 100vh;
   background: #f6f7fb;
 }
 
@@ -149,6 +149,7 @@ onUnmounted(() => {
   display: flex;
   flex: 1;
   min-height: 0;
+  overflow: hidden;
 }
 
 .app__panel {
