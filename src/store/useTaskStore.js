@@ -43,6 +43,8 @@ const createStore = () => {
   let updateCounter = 0;
   let updateTimer = null;
   let computeRequestId = 0;
+  let scrollFrame = null;
+  let pendingScrollTop = 0;
 
   const updateVisibleRange = () => {
     visibleRange.value = getVisibleRange({
@@ -150,10 +152,16 @@ const createStore = () => {
     await fetchWindow({ anchorIndex: visibleRange.value.startIndex, direction: 'forward' });
   };
 
-  const onScroll = async (nextTop) => {
-    scrollTop.value = nextTop;
-    updateVisibleRange();
-    await ensureWindowData();
+  const onScroll = (nextTop) => {
+    pendingScrollTop = nextTop;
+    if (scrollFrame) return;
+    scrollFrame = requestAnimationFrame(async () => {
+      scrollFrame = null;
+      scrollTop.value = pendingScrollTop;
+      updateVisibleRange();
+      await refreshVisibleTasks();
+      await ensureWindowData();
+    });
   };
 
   const onHorizontalScroll = (nextLeft) => {
@@ -163,6 +171,7 @@ const createStore = () => {
   const setViewportHeight = (height) => {
     viewportHeight.value = height;
     updateVisibleRange();
+    refreshVisibleTasks();
   };
 
   const setViewportWidth = (width) => {
