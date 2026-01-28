@@ -111,6 +111,7 @@ watch(
 
 .gantt__canvas {
   position: relative;
+  contain: paint;
 }
 
 .gantt__rows {
@@ -118,6 +119,8 @@ watch(
   top: 0;
   left: 0;
   right: 0;
+  will-change: transform;
+  transform: translateZ(0);
 }
 
 .gantt__row {
@@ -133,6 +136,7 @@ watch(
   background: #4c84ff;
   overflow: hidden;
   cursor: pointer;
+  will-change: transform;
 }
 
 .gantt__bar.selected {
@@ -156,8 +160,8 @@ watch(
   top: 6px;
   height: 22px;
   width: 12px;
-  background: #e5e7eb;
   border-radius: 6px;
+  opacity: 0;
 }
 
 .gantt__progress {

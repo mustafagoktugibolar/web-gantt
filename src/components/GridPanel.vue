@@ -75,6 +75,7 @@ watch(
 
 .grid__spacer {
   position: relative;
+  contain: paint;
 }
 
 .grid__rows {
@@ -82,6 +83,8 @@ watch(
   top: 0;
   left: 0;
   right: 0;
+  will-change: transform;
+  transform: translateZ(0);
 }
 
 .grid__row {
